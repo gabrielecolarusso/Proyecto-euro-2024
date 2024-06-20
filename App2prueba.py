@@ -12,8 +12,6 @@ from ClienteVip import ClienteVip
 from Ticket import Ticket
 import random
 import requests
-import requests
-
 
 class App():
     def __init__(self):
