@@ -7,10 +7,11 @@ from Producto import Producto
 from ProductoBebida import ProductoBebida
 from Restaurante import Restaurante
 from Cliente import Cliente
+from ClienteGeneral import ClienteGeneral
+from ClienteVip import ClienteVip
 from Ticket import Ticket
 import random
 import requests
-
 
 class App():
     def __init__(self):
@@ -144,7 +145,7 @@ class App():
         else:   
             print(f"\n\t\tNo se encontraron partidos para la fecha {fecha}.")
 
-    def comprar_entradas(self):
+    def registrar_cliente(self):
         print("BIENVENIDO, Ingrese los siguientes datos solicitados por el sistema: ")
         nombre = input("Introduzca su nombre: ").title()
         apellido = input("Introduzca su apellido: ").title()
@@ -171,6 +172,12 @@ class App():
                 print("Error. Introduzca un numero valido.")
                 continue
 
+        print("\n\tCliente registrado con éxito")
+        cliente = Cliente(nombre, apellido, cedula, edad)
+        cliente.descuento()
+        return cliente
+
+    def seleccionar_partido(self):
         #Se imprimen los partidos disponibles para comprar las entradas
         print("Partidos disponibles:")
         for i, partido in enumerate(self.partido):
@@ -192,53 +199,164 @@ class App():
         #Comprar la entrada al partido
         partido_seleccionado = self.partido[seleccion - 1]
         print(f"Ha seleccionado el partido: {partido_seleccionado.equipo_Local} vs {partido_seleccionado.equipo_Visitante}, {partido_seleccionado.fecha_partido}")
-
-        # Permite al usuario seleccionar su tipo de entrada
+        return partido_seleccionado
+    
+    def crear_ticket(self, cliente, partido_seleccionado, tipo_ticket):
+        id_del_ticket = self.tickets_id["General"] + self.tickets_id["Vip"]
         while True:
-            tipo_de_entrada = input("""Ingresa el tipo de entrada la cual quieres comprar para el partido: 
-1. General 
-2. Vip 
-""")
-            if tipo_de_entrada != "1" and tipo_de_entrada != "2":
-                print("Error. Tipo de entrada invalido")
-                continue
-            else:
+            id_del_ticket = random.randint(1000000, 99999999)
+            if id_del_ticket not in self.tickets_id["General"] + self.tickets_id["Vip"]:
                 break
 
-        if tipo_de_entrada == "1":
-            self.ver_mapa_asientos(partido_seleccionado, "General", nombre, apellido)
-            precio_entrada = 35
+        seat = self.ver_mapa_asientos(partido_seleccionado)
+
+        if tipo_ticket == "General":
+            ticket = ClienteGeneral(id_del_ticket, partido_seleccionado, partido_seleccionado.stadium_id,seat)
+            ticket.descuento = cliente.descuento_1
+            return ticket
+    
+        elif tipo_ticket == "Vip":
+            ticket = ClienteVip(id_del_ticket, partido_seleccionado, partido_seleccionado.stadium_id,seat)
+            ticket.descuento = cliente.descuento_1
+            return ticket
+
+
+    def comprar_ticket(self):
+        while True:
+            try:
+                print("¿Desea registrarse en nuestro sistema? Ingrese el numero asociado a su seleecion.")
+                print("1. Sí")
+                print("2. No")
+                opt_2 = int(input("\n> ").strip())
+                if opt_2 < 1 or opt_2 > 2:
+                    raise Exception
+                break
+            except:
+                print("\n\tOpción inválida")
+
+        if opt_2 == 1:
+            cliente = self.registrar_cliente()
+            partido = self.seleccionar_partido()
+        while True:
+            try:
+                print("\n\tTipos de entradas disponibles")
+                print("1.General")
+                print("2.Vip")
+                option = int(input("\nSeleccione el tipo de entrada que desea comprar\n> ").strip())
+                if option < 1 or option > 2:
+                    raise Exception
+                break
+            except:
+                print("\n\tOpción inválida")
+                
+        if option == 1:
+            while True: 
+                ticket = self.crear_ticket(cliente, partido, "General")
+                ticket.calcular_monto()
+                print(f"\n\tInformación del ticket general\n")	
+                ticket.show_info()
+
+                while True:
+                    try:
+                        print("\n\t¿Desea continuar con su compra?")
+                        print("1. Sí ")
+                        print("2. No ")
+                        opt = int(input("\n> ").strip())
+                        if opt < 1 or opt > 2:
+                            raise Exception
+                        break
+                    except:
+                        print("\n\tOpción inválida")
+
+                if opt == 1:
+                    cliente.tickets.append(ticket)
+                    self.tickets.append(ticket)
+                    partido.asientos_tomados.append(ticket.seat)
+                    self.tickets_id["General"].append(ticket.id_ticket)
+                    print("\n\tLa compra de su ticket ha sido realizada con éxito!") 
+
+                else:
+                    print("\n\tCompra cancelada")
+                    break
+                
+                if partido.tickets_generales == 0:
+                    print("\n\tNo hay más entradas del tipo General disponibles")
+                    break
+
+                while True:
+                    try:
+                        print("\n\t¿Desea comprar otra entrada?")
+                        print("1. Sí ")
+                        print("2. No ")
+                        opt_1 = int(input("\nIngrese el numero asociado a su eleccion\n> ").strip())
+                        if opt_1 < 1 or opt_1 > 2:
+                            raise Exception
+                        break
+                    except:
+                        print("\n\tOpción inválida")
+
+                if opt_1 == 2:
+                    print("\n\tGracias por la compra de sus boletos!")
+                    break
+                
         else:
-            self.ver_mapa_asientos(partido_seleccionado, "Vip", nombre, apellido)
-            precio_entrada = 75
+            while True:
+                ticket = self.crear_ticket(cliente, partido, "Vip")
+                ticket.calcular_monto()
+                print(f"\n\tInformación del ticket vip\n")	
+                ticket.show_info()
 
-        # Calcular el precio de la entrada verificando si el id es un numero vampiro
-        if cedula < 10 or cedula % 2 == 0:
-            descuento = 0
-            mensaje_descuento = "Su entrada no tiene un descuento ya que no es un numero vampiro"
+                while True:
+                    try:
+                        print("\n\t¿Desea confirmar su compra?")
+                        print("1. Sí ")
+                        print("2. No")
+                        opt = int(input("\n> ").strip())
+                        if opt < 1 or opt > 2:
+                            raise Exception
+                        break
+                    except:
+                        print("\n\tOpción inválida")
 
-        for i in range(2, int(cedula ** 0.5) + 1):
-            if cedula % i == 0:
-                mitad_izq = [int(digit) for digit in str(i)]
-                mitad_der = [int(digit) for digit in str(cedula // i) if int(digit) not in mitad_izq]
-                if len(mitad_izq) > 0 and len(mitad_der) > 0:
-                    product = int(''.join(str(digit) for digit in mitad_izq + mitad_der))
-                    if product == cedula:
-                        descuento = 0.5
-                        mensaje_descuento = "Su entrada tiene un descuento del 50% por ser un número vampiro."
-                    else:
-                        descuento = 0
-                        mensaje_descuento = "Su entrada no tiene un descuento ya que no es un numero vampiro"
+                if opt == 1:
+                    cliente.tickets.append(ticket)
+                    self.tickets.append(ticket)
+                    partido.asientos_tomados.append(ticket.seat)
+                    self.tickets_id["Vip"].append(ticket.id_ticket)
+                    print("\n\tLa compra de su ticket ha sido realizada con éxito!")
+                else:
+                    print("\n\tCompra cancelada")
+                    break
+                
+                if partido.tickets_vip == 0:
+                    print("\n\tNo hay más entradas del tipo Vip disponibles")
+                    break
 
-        subtotal = precio_entrada * (1 - descuento)
-        iva = subtotal * 0.16
-        total = subtotal + iva
+                while True:
+                    try:
+                        print("\n\t¿Desea comprar otra entrada?")
+                        print("1. Sí ")
+                        print("2. No ")
+                        opt_1 = int(input("\nIngrese el numero asociado a su eleccion\n> ").strip())
+                        if opt_1 < 1 or opt_1 > 2:
+                            raise Exception
+                        break
+                    except:
+                        print("\n\tOpción inválida")
 
-        print(f"\nCosto de la entrada:")
-        print(f"Subtotal: ${subtotal}")
-        print(mensaje_descuento)
-        print(f"IVA: ${iva}")
-        print(f"Total: ${total}")
+                if opt_1 == 2:
+                    print("\n\tGracias por su compra!!!")
+                    break
+        
+        if len(cliente.tickets) > 0:
+            cliente.calcular_tickets()
+            self.merge_sort(self.clientes, lambda x: x.cedula)
+            aux_1 = self.binary_search(self.clientes, 0, len(self.clientes) - 1, cliente.cedula, lambda x: x.cedula)
+            if aux_1 == -1:
+                self.clientes.append(cliente)
+            print(f"\nEntradas totales compradas: {len(cliente.tickets)}")
+            print(f"Monto total de las entradas: ${cliente.total_tickets}")
+
 
         # Preguntar al cliente si desea proceder con el pago
         while True:
@@ -253,7 +371,7 @@ class App():
                 print("Error. Opción invalida.")
 
 
-    def ver_mapa_asientos(self, partido_seleccionado, tipo_de_entrada, nombre, apellido):
+    def ver_mapa_asientos(self, partido_seleccionado):
         #Crea un mapa de asientos
         seating_map = {}
         for row in range(1, 11):
@@ -271,22 +389,77 @@ class App():
         #Codigo para seleccionar el asiento
         while True:
             try:
-                row = int(input("Enter the row number: "))
-                seat = int(input("Enter the seat number: "))
+                row = int(input("Selecciona el numero de fila: "))
+                seat = int(input("Selecciona el numero de asiento: "))
                 if row < 1 or row > 10 or seat < 1 or seat > 10:
-                    print("Error. Invalid seat number.")
+                    print("Error. Numero de asiento invalido.")
                     continue
                 if seating_map[row][seat - 1] != ' ':
-                    print("Error. Seat already occupied.")
+                    print("Error. Asiento ya ocupado.")
                     continue
                 break
             except ValueError:
                 print("Error. Invalid input.")
                 continue
 
-        seating_map[seat] = f"{nombre} {apellido}"
-        return print(f"\nEl asiento {seat} en la fila {row} ha sido seleccionado.")
+        seating_map[seat] = f"{partido_seleccionado}"
+        return seat
 
+    def merge_sort(self, my_list, my_func = lambda x: x):
+        """Ordena una lista de menor a mayor, usando el algoritmo de merge sort
+        Args:
+            my_list (List): lista a ordenar
+            my_func: función que se aplicará a cada elemento de la lista
+        """
+        if len(my_list) > 1:
+            mid = len(my_list) // 2
+            left = my_list[:mid]
+            right = my_list[mid:]
+            self.merge_sort(left, my_func)
+            self.merge_sort(right, my_func)
+            i = j = k = 0
+
+            while i < len(left) and j < len(right):
+                if my_func(left[i]) <= my_func(right[j]):
+                  my_list[k] = left[i]
+                  i += 1
+                else:
+                    my_list[k] = right[j]
+                    j += 1
+                k += 1
+
+            while i < len(left):
+                my_list[k] = left[i]
+                i += 1
+                k += 1
+
+            while j < len(right):
+                my_list[k] = right[j]
+                j += 1
+                k += 1
+
+    def binary_search(self, arr, low, high, x, my_func = lambda x: x):
+        """Busca un elemento en una lista, usando el algoritmo de búsqueda binaria
+        Args:
+            arr (List): lista en la que se buscará el elemento
+            low (Int): índice inferior de la lista
+            high (Int): índice superior de la lista
+            x: elemento a buscar
+            my_func: función que se aplicará a cada elemento de la lista
+        Returns:
+            Int: índice del elemento en la lista
+        """
+        if high >= low:
+            mid = (high + low) // 2
+            if my_func(arr[mid]) == x:
+                return mid
+            elif my_func(arr[mid]) > x:
+                return self.binary_search(arr, low, mid - 1, x, my_func)
+            else:
+                return self.binary_search(arr, mid + 1, high, x, my_func)
+        else:
+            return -1
+            
     def menu(self):
         self.registrar_equipos()
         self.registrar_partidos()
@@ -332,24 +505,4 @@ class App():
 
         elif option == 5:
             print("\n\t\tComprar tickets\n")
-            self.comprar_entradas()
-
-
-from Equipo import Equipo
-
-class Partido(Equipo):
-    def __init__(self, id, equipo_Local, equipo_Visitante, fecha, stadium_id):
-        super().__init__(id, equipo_Local, equipo_Visitante)
-        self.fecha = fecha
-        self.stadium_id = stadium_id
-        self.general_tickets = [0]
-        self.vip_tickets = stadium.capacity[1]
-        self.seats_taken = []
-        self.stadium_attendance = 0
-    
-
-    def get_date(self):
-        return self.fecha
-
-    def show(self):
-        return f"Partido: {self.equipo_Local} vs. {self.equipo_Visitante}\nEstadio: {self.stadium_id()}\nFecha: {self.fecha}"
+            self.comprar_ticket()

@@ -242,7 +242,7 @@ class App():
                 print("\n\tTipos de entradas disponibles")
                 print("1.General")
                 print("2.Vip")
-                option = int(input("\nSeleccione el tipo de entrada\n> ").strip())
+                option = int(input("\nSeleccione el tipo de entrada que desea comprar\n> ").strip())
                 if option < 1 or option > 2:
                     raise Exception
                 break
@@ -258,9 +258,9 @@ class App():
 
                 while True:
                     try:
-                        print("\n\t¿Desea confirmar su compra?")
-                        print("-Sí (ingrese 1)")
-                        print("-No (ingrese 2)")
+                        print("\n\t¿Desea continuar con su compra?")
+                        print("1. Sí ")
+                        print("2. No ")
                         opt = int(input("\n> ").strip())
                         if opt < 1 or opt > 2:
                             raise Exception
@@ -273,22 +273,22 @@ class App():
                     self.tickets.append(ticket)
                     partido.asientos_tomados.append(ticket.seat)
                     self.tickets_id["General"].append(ticket.id_ticket)
-                    print("\n\tCompra realizada con éxito!") 
+                    print("\n\tLa compra de su ticket ha sido realizada con éxito!") 
 
                 else:
                     print("\n\tCompra cancelada")
                     break
                 
                 if partido.tickets_generales == 0:
-                    print("\n\tNo hay más entradas General disponibles")
+                    print("\n\tNo hay más entradas del tipo General disponibles")
                     break
 
                 while True:
                     try:
                         print("\n\t¿Desea comprar otra entrada?")
-                        print("-Sí (ingrese 1)")
-                        print("-No (ingrese 2)")
-                        opt_1 = int(input("\nIngrese el numero de la opcion que desea ejecutar\n> ").strip())
+                        print("1. Sí ")
+                        print("2. No ")
+                        opt_1 = int(input("\nIngrese el numero asociado a su eleccion\n> ").strip())
                         if opt_1 < 1 or opt_1 > 2:
                             raise Exception
                         break
@@ -296,7 +296,7 @@ class App():
                         print("\n\tOpción inválida")
 
                 if opt_1 == 2:
-                    print("\n\tGracias por su compra!!!")
+                    print("\n\tGracias por la compra de sus boletos!")
                     break
                 
         else:
@@ -309,8 +309,8 @@ class App():
                 while True:
                     try:
                         print("\n\t¿Desea confirmar su compra?")
-                        print("-Sí (ingrese 1)")
-                        print("-No (ingrese 2)")
+                        print("1. Sí ")
+                        print("2. No")
                         opt = int(input("\n> ").strip())
                         if opt < 1 or opt > 2:
                             raise Exception
@@ -323,21 +323,21 @@ class App():
                     self.tickets.append(ticket)
                     partido.asientos_tomados.append(ticket.seat)
                     self.tickets_id["Vip"].append(ticket.id_ticket)
-                    print("\n\tCompra realizada con éxito!")
+                    print("\n\tLa compra de su ticket ha sido realizada con éxito!")
                 else:
                     print("\n\tCompra cancelada")
                     break
                 
                 if partido.tickets_vip == 0:
-                    print("\n\tNo hay más entradas Vip disponibles")
+                    print("\n\tNo hay más entradas del tipo Vip disponibles")
                     break
 
                 while True:
                     try:
                         print("\n\t¿Desea comprar otra entrada?")
-                        print("-Sí (ingrese 1)")
-                        print("-No (ingrese 2)")
-                        opt_1 = int(input("\nIngrese el numero de la opcion que desea ejecutar\n> ").strip())
+                        print("1. Sí ")
+                        print("2. No ")
+                        opt_1 = int(input("\nIngrese el numero asociado a su eleccion\n> ").strip())
                         if opt_1 < 1 or opt_1 > 2:
                             raise Exception
                         break
@@ -348,15 +348,14 @@ class App():
                     print("\n\tGracias por su compra!!!")
                     break
         
-        if len(cliente.tickets) > 0:
+        if len(self.clientes) > 0:
             cliente.calcular_tickets()
             self.merge_sort(self.clientes, lambda x: x.cedula)
             aux_1 = self.binary_search(self.clientes, 0, len(self.clientes) - 1, cliente.cedula, lambda x: x.cedula)
             if aux_1 == -1:
                 self.clientes.append(cliente)
-            print(f"\nEntradas compradas en total: {len(cliente.tickets)}")
-            print(f"Monto total: ${cliente.total_tickets}")
-
+            print(f"\nEntradas totales compradas: {len(cliente.tickets)}")
+            print(f"Monto total de las entradas: ${cliente.total_tickets}")
 
         # Preguntar al cliente si desea proceder con el pago
         while True:
@@ -405,58 +404,40 @@ class App():
         seating_map[seat] = f"{partido_seleccionado}"
         return seat
 
-    def merge_sort(self, my_list, my_func = lambda x: x):
-        """Ordena una lista de menor a mayor, usando el algoritmo de merge sort
-        Args:
-            my_list (List): lista a ordenar
-            my_func: función que se aplicará a cada elemento de la lista
-        """
-        if len(my_list) > 1:
-            mid = len(my_list) // 2
-            left = my_list[:mid]
-            right = my_list[mid:]
-            self.merge_sort(left, my_func)
-            self.merge_sort(right, my_func)
+    def merge_sort(self, mi_lista, mi_func):
+        if len(mi_lista) > 1:
+            medio = len(mi_lista) // 2
+            izquierda = mi_lista[:medio]
+            derecha = mi_lista[medio:]
+            self.merge_sort(izquierda, mi_func)
+            self.merge_sort(derecha, mi_func)
             i = j = k = 0
-
-            while i < len(left) and j < len(right):
-                if my_func(left[i]) <= my_func(right[j]):
-                  my_list[k] = left[i]
-                  i += 1
+            while i < len(izquierda) and j < len(derecha):
+                if mi_func(izquierda[i]) <= mi_func(derecha[j]):
+                    mi_lista[k] = izquierda[i]
+                    i += 1
                 else:
-                    my_list[k] = right[j]
+                    mi_lista[k] = derecha[j]
                     j += 1
                 k += 1
-
-            while i < len(left):
-                my_list[k] = left[i]
+            while i < len(izquierda):
+                mi_lista[k] = izquierda[i]
                 i += 1
                 k += 1
-
-            while j < len(right):
-                my_list[k] = right[j]
+            while j < len(derecha):
+                mi_lista[k] = derecha[j]
                 j += 1
                 k += 1
 
-    def binary_search(self, arr, low, high, x, my_func = lambda x: x):
-        """Busca un elemento en una lista, usando el algoritmo de búsqueda binaria
-        Args:
-            arr (List): lista en la que se buscará el elemento
-            low (Int): índice inferior de la lista
-            high (Int): índice superior de la lista
-            x: elemento a buscar
-            my_func: función que se aplicará a cada elemento de la lista
-        Returns:
-            Int: índice del elemento en la lista
-        """
-        if high >= low:
-            mid = (high + low) // 2
-            if my_func(arr[mid]) == x:
-                return mid
-            elif my_func(arr[mid]) > x:
-                return self.binary_search(arr, low, mid - 1, x, my_func)
+    def binary_search(self, arr, bajo, alto, x, mi_func):
+        if alto >= bajo:
+            medio = (alto + bajo) // 2
+            if mi_func(arr[medio]) == x:
+                return medio
+            elif mi_func(arr[medio]) > x:
+                return self.binary_search(arr, bajo, medio - 1, x, mi_func)
             else:
-                return self.binary_search(arr, mid + 1, high, x, my_func)
+                return self.binary_search(arr, medio + 1, alto, x, mi_func)
         else:
             return -1
             
