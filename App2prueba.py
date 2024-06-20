@@ -12,6 +12,7 @@ from ClienteVip import ClienteVip
 from Ticket import Ticket
 import random
 import requests
+import requests
 
 
 class App():
@@ -234,7 +235,7 @@ class App():
                 break
             except:
                 print("\n\tOpción inválida")
-                
+
         if opt_2 == 1:
             cliente = self.registrar_cliente()
             partido = self.seleccionar_partido()
