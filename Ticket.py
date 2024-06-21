@@ -19,6 +19,5 @@ class Ticket():
         if self.descuento:
             print(f"-Descuento: ${self.monto_descuento}")
         print(f"-Subtotal: ${self.subtotal}")
-        print(f"-Descuento: ${self.descuento}")
         print(f"-Impuestos (16%): ${self.subtotal * self.taxes}")
         print(f"-Total: ${self.total}")

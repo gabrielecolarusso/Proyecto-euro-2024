@@ -440,50 +440,86 @@ class App():
                 return self.binary_search(arr, medio + 1, alto, x, mi_func)
         else:
             return -1
+        
+    def check_tickets(self):
+        while True:
+            try:
+                ticket_id = int(input("\nIngresa el ID del ticket para su verificacion: "))
+                break
+            except:
+                print("\nIngreso invalido, intente de nuevo\n")
+        
+        tickets_id = [t for t in self.tickets_id["General"] + self.tickets_id["Vip"]]
+
+        if ticket_id in tickets_id:
+            if ticket_id not in self.tickets_usados:
+                self.tickets_usados.append(ticket_id)
+                print("\n\t\tTicket verificado con exito!!!\n")
+                self.merge_sort(self.tickets, lambda x: x.id_ticket)
+                ind = self.binary_search(self.tickets, 0, len(self.tickets) - 1, ticket_id, lambda x: x.id_ticket)
+                ticket = self.tickets[ind]
+                ticket.show_info()
+
+                print("\n\t\tAsistencia registrada con exito!!!\n")
+
+                self.merge_sort(self.partido, lambda x: x.id_partido)
+                ind_2 = self.binary_search(self.partido, 0, len(self.partido) - 1, ticket.partido.id, lambda x: x.id)
+                game = self.partido[ind_2]
+                game.visitas_estadio += 1
+            else:
+                print("\n\t\tEl ticket ya fue verificado anteriormente\n")
+
+        else:
+            print("\n\t\tEl ticket ingresado no existe\n")
             
     def menu(self):
         self.registrar_equipos()
         self.registrar_partidos()
         self.registrar_estadios
-        print('-- EUROCOPA 2024 --\n Bienvenido/a')
         while True:
-                try:
-                    print("\n\t\tSeleeciona el numero asociado a tu eleccion:\n")
-                    print("1.Ver todos los partidos de la Euro 2024")
-                    print("2.Buscar todos los partidos de un país")
-                    print("3.Buscar todos los partidos que se jugarán en un estadio específico")
-                    print("4.Buscar todos los partidos que se jugarán en una fecha determinada")
-                    print("5.Comprar tickets")
-                    print("6.Verificar tickets y registrar asistencia")
-                    print("7.Comprar productos")
-                    print("8.Buscar productos")
-                    print("9.Mostrar estadísticas")
-                    print("10.Cargar datos de la API (Cargar los datos a su estado inicial)")
-                    print("11.Salir")
+            print('-- EUROCOPA 2024 --\n Bienvenido/a')
+            while True:
+                    try:
+                        print("\n\t\tSeleeciona el numero asociado a tu eleccion:\n")
+                        print("1.Ver todos los partidos de la Euro 2024")
+                        print("2.Buscar todos los partidos de un país")
+                        print("3.Buscar todos los partidos que se jugarán en un estadio específico")
+                        print("4.Buscar todos los partidos que se jugarán en una fecha determinada")
+                        print("5.Comprar tickets")
+                        print("6.Verificar tickets y registrar asistencia")
+                        print("7.Comprar productos")
+                        print("8.Buscar productos")
+                        print("9.Mostrar estadísticas")
+                        print("10.Cargar datos de la API (Cargar los datos a su estado inicial)")
+                        print("11.Salir")
 
-                    option = int(input("\nIngrese el numero de la opción que desea ejecutar\n> "))
-                    if option not in range(1,12):
-                        raise Exception
-                    break
-                except:
-                    print("\nOpción invalida\n")
+                        option = int(input("\nIngrese el numero de la opción que desea ejecutar\n> "))
+                        if option not in range(1,12):
+                            raise Exception
+                        break
+                    except:
+                        print("\nOpción invalida\n")
                 
-        if option == 1:
-            print("\n\t\tLista de todos los partidos:\n")
-            self.registrar_partidos()
+            if option == 1:
+                print("\n\t\tLista de todos los partidos:\n")
+                self.registrar_partidos()
 
-        elif option == 2:
-            print("\n\t\tBuscar todos los partidos de un país\n")
-            self.buscar_partidos_por_pais()
+            elif option == 2:
+                print("\n\t\tBuscar todos los partidos de un país\n")
+                self.buscar_partidos_por_pais()
             
-        elif option == 3:
-            print("\n\t\tBuscar todos los partidos que se jugarán en un estadio específico\n")
-            self.buscar_partidos_por_estadio()
+            elif option == 3:
+                print("\n\t\tBuscar todos los partidos que se jugarán en un estadio específico\n")
+                self.buscar_partidos_por_estadio()
 
-        elif option == 4:
-            print("\n\t\tBuscar todos los partidos que se jugarán en una fecha determinada\n")
-            self.buscar_partidos_por_fecha()
+            elif option == 4:
+                print("\n\t\tBuscar todos los partidos que se jugarán en una fecha determinada\n")
+                self.buscar_partidos_por_fecha()
 
-        elif option == 5:
-            print("\n\t\tComprar tickets\n")
-            self.comprar_ticket()
+            elif option == 5:
+                print("\n\t\tComprar tickets\n")
+                self.comprar_ticket()
+
+            elif option == 6:
+                print("\n\t\tVerificar tickets y registrar asistencia\n")
+                self.check_tickets()

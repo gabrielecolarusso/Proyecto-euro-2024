@@ -19,19 +19,16 @@ class Cliente:
         
 
     def descuento_vampiro(self):
-        if self.cedula < 10 or self.cedula % 2 == 0:
-            return False
+        num_str = str(self.cedula)
+        num_digits = len(num_str)
+        half_digits = num_digits // 2
 
-        for i in range(2, int(self.cedula ** 0.5) + 1):
-            if self.cedula % i == 0:
-                mitad_izq = [int(digit) for digit in str(i)]
-                mitad_der = [int(digit) for digit in str(self.cedula // i) if int(digit) not in mitad_izq]
-                if len(mitad_izq) > 0 and len(mitad_der) > 0:
-                    product = int(''.join(str(digit) for digit in mitad_izq + mitad_der))
-                    if product == self.cedula:
-                        return True
-                    else:
-                        return False
+        for i in range(10 ** (half_digits - 1), 10 ** half_digits):
+            for j in range(10 ** (half_digits - 1), 10 ** half_digits):
+                if i * j == self.cedula and set(str(i) + str(j)) == set(num_str):
+                    return True
+
+        return False
 
     def descuento(self):
         if self.descuento_vampiro():
