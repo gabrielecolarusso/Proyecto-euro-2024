@@ -21,7 +21,11 @@ class Estadio:
     
 
     def show(self):
+        print(f"-Id: {self.id}")
+        print(f"-Nombre: {self.name}")
+        print(f"-Ubicación: {self.city}")
+        print(f"-Capacidad: {self.capacity[0] + self.capacity[1]}")
+        print(f"\n\tRestaurantes")
         for n, restaurant in enumerate(self.restaurantes):
             print(f"\n________{n+1}________")
             restaurant.show()
-            return f"----Info Estadio----\nID: {self.id}\nEstadio: {self.name}\nCiudad: {self.city}\nCapacidad: {self.capacity[0], self.capacity[1]}\n\n ----Restaurantes del estadio----\n"

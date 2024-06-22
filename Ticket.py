@@ -13,7 +13,7 @@ class Ticket():
     def show_info(self):
         print(f"-Ticket ID: {self.id_ticket}")
         print(f"-Partido: {self.partido.equipo_Local} vs {self.partido.equipo_Visitante}")
-        print(f"-Estadio: {self.stadium}")
+        print(f"-Estadio: {self.stadium.name}")
         print(f"-Asiento: {self.seat}")
         print(f"-Descuento (50%): {self.descuento}")
         if self.descuento:

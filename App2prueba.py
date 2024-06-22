@@ -55,7 +55,7 @@ class App():
         for info_stadium in estadios:
             stadium = Estadio(info_stadium["id"], info_stadium["name"], info_stadium["city"], info_stadium["capacity"])
             self.estadio.append(stadium)
-            print(stadium.show())
+            
 
             for info_restaurante in info_stadium["restaurants"]:
                 restaurante = Restaurante(info_restaurante["name"])
@@ -65,10 +65,12 @@ class App():
                     producto = Producto(info_producto["name"], info_producto["quantity"], info_producto["price"], info_producto["stock"], info_producto["adicional"] )
                     self.productos.append(producto)
 
+
     def registrar_partidos(self):
         partidos = self.get_info_api("matches")
         for info_partido in partidos:
-            partido = InfoPartido(info_partido["home"]["name"], info_partido["away"]["name"], info_partido["date"], info_partido["stadium_id"])
+            stadium = list(filter(lambda x: x.id == info_partido["stadium_id"], self.estadio))[0]
+            partido = Partido(info_partido["id"],info_partido["home"]["name"], info_partido["away"]["name"], info_partido["date"], stadium)
             self.partido.append(partido)
             print(partido.show())
 
@@ -95,25 +97,25 @@ class App():
         if partidos_encontrados:
             print(f"\n\t\tPartidos encontrados para {pais}:\n")
             for partido in partidos_encontrados:
-                print(f"Local: {partido.equipo_Local}\nVisitante: {partido.equipo_Visitante}\nFecha: {partido.fecha_partido}\nEstadio: {partido.stadium_id}\n")
+                print(f"Local: {partido.equipo_Local}\nVisitante: {partido.equipo_Visitante}\nFecha: {partido.fecha}\nEstadio: {partido.stadium.name}\n")
         else:   
             print(f"\n\t\tNo se encontraron partidos para el país {pais}.")
     
     def buscar_partidos_por_estadio(self):
         estadios = self.get_info_api("stadiums")
         for info_stadium in estadios:
-            print(info_stadium["id"])
-        estadio_id = input("Introduzca el ID del estadio que desea buscar: ")
+            print(info_stadium["name"])
+        estadio_id = input("Introduzca el nombre del estadio que desea buscar: ")
 
         partidos_encontrados = []
         for partido in self.partido:
-            if partido.stadium_id == estadio_id:
+            if partido.stadium.name == estadio_id:
                 partidos_encontrados.append(partido)
 
         if partidos_encontrados:
             print(f"\n\t\tPartidos encontrados en el estadio con ID {estadio_id}:\n")
             for partido in partidos_encontrados:
-                print(f"Local: {partido.equipo_Local}\nVisitante: {partido.equipo_Visitante}\nFecha: {partido.fecha_partido}\nEstadio: {partido.stadium_id}\n")
+                print(f"Local: {partido.equipo_Local}\nVisitante: {partido.equipo_Visitante}\nFecha: {partido.fecha}\nEstadio: {partido.stadium.name}\n")
         else:   
             print(f"\n\t\tNo se encontraron partidos en el estadio con ID {estadio_id}.") 
 
@@ -135,13 +137,13 @@ class App():
 
         partidos_encontrados = []
         for partido in self.partido:
-            if partido.fecha_partido == fecha:
+            if partido.fecha == fecha:
                 partidos_encontrados.append(partido)
 
         if partidos_encontrados:
             print(f"\n\t\tPartidos encontrados para la fecha {fecha}:\n")
             for partido in partidos_encontrados:
-                print(f"Local: {partido.equipo_Local}\nVisitante: {partido.equipo_Visitante}\nFecha: {partido.fecha_partido}\nEstadio: {partido.stadium_id}\n")
+                print(f"Local: {partido.equipo_Local}\nVisitante: {partido.equipo_Visitante}\nFecha: {partido.fecha}\nEstadio: {partido.stadium.name}\n")
         else:   
             print(f"\n\t\tNo se encontraron partidos para la fecha {fecha}.")
 
@@ -181,8 +183,9 @@ class App():
         #Se imprimen los partidos disponibles para comprar las entradas
         print("Partidos disponibles:")
         for i, partido in enumerate(self.partido):
-            print(f"{i+1}. {partido.equipo_Local} vs {partido.equipo_Visitante}, {partido.fecha_partido}")
-            print(f"Estadio: {partido.stadium_id}\n")
+            print(f"{i+1}. {partido.equipo_Local} vs {partido.equipo_Visitante}")
+            print(f"Fecha: {partido.fecha}")
+            print(f"Estadio: {partido.stadium.name}\n")
         #Seleccionar un partido disponible
         while True:
             try:
@@ -198,7 +201,7 @@ class App():
 
         #Comprar la entrada al partido
         partido_seleccionado = self.partido[seleccion - 1]
-        print(f"Ha seleccionado el partido: {partido_seleccionado.equipo_Local} vs {partido_seleccionado.equipo_Visitante}, {partido_seleccionado.fecha_partido}")
+        print(f"Ha seleccionado el partido: {partido_seleccionado.equipo_Local} vs {partido_seleccionado.equipo_Visitante}, {partido_seleccionado.fecha}, {partido_seleccionado.stadium.name}")
         return partido_seleccionado
     
     def crear_ticket(self, cliente, partido_seleccionado, tipo_ticket):
@@ -211,12 +214,12 @@ class App():
         seat = self.ver_mapa_asientos(partido_seleccionado)
 
         if tipo_ticket == "General":
-            ticket = ClienteGeneral(id_del_ticket, partido_seleccionado, partido_seleccionado.stadium_id,seat)
+            ticket = ClienteGeneral(id_del_ticket, partido_seleccionado, partido_seleccionado.stadium,seat)
             ticket.descuento = cliente.descuento_1
             return ticket
     
         elif tipo_ticket == "Vip":
-            ticket = ClienteVip(id_del_ticket, partido_seleccionado, partido_seleccionado.stadium_id,seat)
+            ticket = ClienteVip(id_del_ticket, partido_seleccionado, partido_seleccionado.stadium,seat)
             ticket.descuento = cliente.descuento_1
             return ticket
 
@@ -273,6 +276,7 @@ class App():
                     self.tickets.append(ticket)
                     partido.asientos_tomados.append(ticket.seat)
                     self.tickets_id["General"].append(ticket.id_ticket)
+                    partido.tickets_generales -= 1
                     print("\n\tLa compra de su ticket ha sido realizada con éxito!") 
 
                 else:
@@ -323,6 +327,7 @@ class App():
                     self.tickets.append(ticket)
                     partido.asientos_tomados.append(ticket.seat)
                     self.tickets_id["Vip"].append(ticket.id_ticket)
+                    partido.tickets_vip -= 1
                     print("\n\tLa compra de su ticket ha sido realizada con éxito!")
                 else:
                     print("\n\tCompra cancelada")
@@ -463,7 +468,7 @@ class App():
                 print("\n\t\tAsistencia registrada con exito!!!\n")
 
                 self.merge_sort(self.partido, lambda x: x.id_partido)
-                ind_2 = self.binary_search(self.partido, 0, len(self.partido) - 1, ticket.partido.id, lambda x: x.id)
+                ind_2 = self.binary_search(self.partido, 0, len(self.partido) - 1, ticket.partido.id_partido, lambda x: x.id_partido)
                 game = self.partido[ind_2]
                 game.visitas_estadio += 1
             else:
@@ -474,8 +479,8 @@ class App():
             
     def menu(self):
         self.registrar_equipos()
+        self.registrar_estadios()
         self.registrar_partidos()
-        self.registrar_estadios
         while True:
             print('-- EUROCOPA 2024 --\n Bienvenido/a')
             while True:
@@ -502,7 +507,10 @@ class App():
                 
             if option == 1:
                 print("\n\t\tLista de todos los partidos:\n")
-                self.registrar_partidos()
+                self.merge_sort(self.partido, lambda x: x.fecha)
+                for i, partido in enumerate(self.partido):
+                    print(f"\n----------{i + 1}----------")
+                    partido.show()
 
             elif option == 2:
                 print("\n\t\tBuscar todos los partidos de un país\n")

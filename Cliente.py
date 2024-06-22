@@ -20,11 +20,11 @@ class Cliente:
 
     def descuento_vampiro(self):
         num_str = str(self.cedula)
-        num_digits = len(num_str)
-        half_digits = num_digits // 2
+        num_digitos = len(num_str)
+        mitad_digitos = num_digitos // 2
 
-        for i in range(10 ** (half_digits - 1), 10 ** half_digits):
-            for j in range(10 ** (half_digits - 1), 10 ** half_digits):
+        for i in range(10 ** (mitad_digitos - 1), 10 ** mitad_digitos):
+            for j in range(10 ** (mitad_digitos - 1), 10 ** mitad_digitos):
                 if i * j == self.cedula and set(str(i) + str(j)) == set(num_str):
                     return True
 
