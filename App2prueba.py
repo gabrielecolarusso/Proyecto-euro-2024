@@ -656,7 +656,7 @@ class App():
         else:
             print("\n\tNo se encontraron productos con el precio proporcionado.")
 
-    def purchase_products(self):
+    def comprar_productos(self):
         aux_2 = True
         while aux_2:
             cedula = input("\nIngrese su cedula\n> ")
@@ -789,17 +789,18 @@ class App():
                     print(f"\t\tPrecio unitario (Incluye el IVA): ${real_product.price}")
                     print(f"\t\tSubtotal: ${real_product.price * quantity}")
                     if cliente.descuento_2:
-                        print(f"\t\tDescuento (15%): ${real_product.price * quantity * 0.15}") 
+                        print(f"\t\tDescuento (15%): ${real_product.price * quantity * 0.15}")
+                        print(f"\t\tTotal: ${(real_product.price * quantity) - (real_product.price * quantity * 0.15)}") 
+
                     else:
                         print("\t\tDescuento (15%): $0")
-
-                    print(f"\t\tTotal: ${real_product.price * quantity}")
+                        print(f"\t\tTotal: ${real_product.price * quantity}")
                     print("_"*70)
                     for i in range(quantity):
                         cliente.productos.append(real_product)
-                        real_product.cambiar_cantidad(quantity)
-                        real_product.calcular_monto()
-                        cliente.calcular_total()
+                    real_product.cambiar_cantidad(quantity)
+                    real_product.calcular_monto()
+                    cliente.calcular_total()
 
                 while True:
                     try:
@@ -814,6 +815,96 @@ class App():
                         print("\n\t\tOpcion invalida\n")
                 if opt == 2:
                     break
+
+    def mostrar_estadisticas(self):
+        while True:
+            try:
+                print("\n\t\tSeleeciona la opción de precio que desea buscar:")
+                print("1. Promedio de gasto de un cliente VIP en un partido")
+                print("2. Tabla con la asistencia a los partidos de mejor a peor")
+                print("3. Partido con mayor asistencia")
+                print("4. Partido con mayor boletos vendidos")
+                print("5. Top 3 productos más vendidos en el restaurante")
+                print("6. Top 3 de clientes (clientes que más compraron boletos)")
+
+                option = int(input("\nIngrese el número de la opción que desea ejecutar\n> "))
+                if option not in range(1, 7):
+                    raise Exception
+                break
+            except:
+                print("\nOpción invalida\n")
+
+        if option == 1:     
+            vip_tickets = list(filter(lambda x: isinstance(x, ClienteVip), self.tickets))
+            total_vip_spending = sum(map(lambda x: x.total, vip_tickets))
+            average_vip_spending = total_vip_spending / len(vip_tickets) if vip_tickets else 0
+            print(f"\nPromedio de gasto de un cliente VIP en un partido: ${average_vip_spending:.2f}")
+
+        if option == 2:     
+            sorted_partidos = sorted(self.partido, key=lambda x: x.visitas_estadio, reverse=True)
+            print("\nTabla con la asistencia a los partidos de mejor a peor:")
+            for i,partido in enumerate(sorted_partidos):
+                print(f"{i+1}. {partido.equipo_Local} vs {partido.equipo_Visitante}")
+                print(f"Estadio: {partido.stadium.name}")
+                print(f"Entradas Vendidas: {partido.asientos_tomados}")
+                print(f"Asistencia: {partido.visitas_estadio}")
+                print(f"Relación Asistencia/Venta: {partido.visitas_estadio/partido.asientos_tomados if partido.asientos_tomados else 0:.2f}\n")
+
+        if option == 3:     
+            max_asistencia_partido = max(self.partido, key=lambda x: x.visitas_estadio)
+            print(f"\nPartido con mayor asistencia: {max_asistencia_partido.id_partido}")
+            print(f"Equipos: {max_asistencia_partido.equipo_Local} vs {max_asistencia_partido.equipo_Visitante}")
+            print(f"Estadio: {max_asistencia_partido.stadium.name}")
+            print(f"Entradas Vendidas: {max_asistencia_partido.asientos_tomados}")
+            print(f"Asistencia: {max_asistencia_partido.visitas_estadio}")
+
+        if option == 4:     
+            max_boletos_partido = max(self.partido, key=lambda x: x.asientos_tomados)
+            print(f"\nPartido con mayor boletos vendidos: {max_boletos_partido.id_partido}")
+            print(f"Equipos: {max_boletos_partido.equipo_Local} vs {max_boletos_partido.equipo_Visitante}")
+            print(f"Estadio: {max_boletos_partido.stadium.name}")
+            print(f"Entradas Vendidas: {max_boletos_partido.asientos_tomados}")
+            print(f"Asistencia: {max_boletos_partido.visitas_estadio}")
+
+        elif opt == 5:
+            restaurants = []
+            for stadium in self.estadio:
+                for restaurant in stadium.restaurantes:
+                    restaurants.append(restaurant)
+            
+            self.merge_sort(restaurants, lambda x: x.name_restaurante)
+            print("\n\n\n\t\tRestaurantes\n")
+            while True:
+                try:
+                    for i, restaurant in enumerate(restaurants):
+                        print(f"{i+1}. {restaurant.name_restaurante}")
+                    print("\nIngrese el numero del restaurante donde desea ver los productos mas vendidos")
+                    opt = int(input("> ").strip())
+                    if opt < 1 or opt > len(restaurants):
+                        raise Exception
+                    break
+                except:
+                    print("\n\tOpción inválida")
+
+            r = restaurants[opt - 1]
+            prods = list(filter(lambda x: x.ventas > 0, r.productos))
+            self.merge_sort(prods, lambda x: x.ventas)
+
+            if len(prods) == 0:
+                print("\n\tNo se han vendido productos en este restaurante")
+            elif len(prods) <= 3:
+                print(f"\n\t\tTop 3 productos mas vendidos en {r.name}")
+                for i in range(1, len(prods)+1):
+                    print(f"{i}. {prods[-i].name} con {prods[-i].ventas} ventas")
+
+        if option == 6:     
+            sorted_clientes = sorted(self.clientes, key=lambda x: len(x.tickets), reverse=True)
+            top_3_clientes = sorted_clientes[:3]
+            print("\nTop 3 de clientes (clientes que más compraron boletos):")
+            print("Nombre\t\tCedula\t\tCantidad de Boletos Comprados")
+            for cliente in top_3_clientes:
+                print(f"{cliente.name}\t\t{cliente.cedula}\t\t{len(cliente.tickets)}")
+
             
     def menu(self):
         self.registrar_equipos()
@@ -830,10 +921,10 @@ class App():
                         print("4.Buscar todos los partidos que se jugarán en una fecha determinada")
                         print("5.Comprar tickets")
                         print("6.Verificar tickets y registrar asistencia")
-                        print("7.Comprar productos")
-                        print("8.Buscar productos por nombre")
-                        print("9.Buscar productos por tipo")
-                        print("10.Buscar productos por precio")
+                        print("7.Buscar productos por nombre")
+                        print("8.Buscar productos por tipo")
+                        print("9.Buscar productos por precio")
+                        print("10.Comprar productos")
                         print("11.Mostrar estadísticas")
                         print("12.Cargar datos de la API (Cargar los datos a su estado inicial)")
                         print("13.Salir")
@@ -873,17 +964,21 @@ class App():
                 self.check_tickets()
 
             elif option == 7:
-                print("\n\t\tComprar productos\n")
-                self.purchase_products()
-
-            elif option == 8:
                 print("\n\t\tBuscar productos por nombre\n")
                 self.buscar_productos_por_nombre()
 
-            elif option == 9:
+            elif option == 8:
                 print("\n\t\tBuscar productos por tipo\n")
                 self.buscar_productos_por_tipo()
 
-            elif option == 10:
+            elif option == 9:
                 print("\n\t\tBuscar productos por precio\n")
                 self.buscar_productos_por_precio()
+                
+            elif option == 10:
+                print("\n\t\tComprar productos\n")
+                self.comprar_productos()
+
+            elif option == 11:
+                print("\n\t\tMostrar estadísticas\n")
+                self.mostrar_estadisticas()
