@@ -6,28 +6,6 @@ class ProductoComida(Producto):
         self.type = "Comida"
         self.package = package
 
-    def change_quantity(self, cantidad):
-        cantidad_nueva = self.quantity - cantidad
-        self.quantity = cantidad_nueva
-
-        if cantidad_nueva < 0:
-            self.quantity = 0
-            print("No hay suficiente stock")
-            return
-        else:
-            return self.quantity
-        
-    def restore_quantity(self, cantidad):
-        cantidad_nueva = self.quantity + cantidad
-        self.quantity = cantidad_nueva
-
-        if cantidad_nueva < 0:
-            self.quantity = 0
-            print("No hay suficiente stock")
-            return
-        else:
-            return self.quantity
-        
     def getName(self):
         return self.name
     

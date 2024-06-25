@@ -3,18 +3,25 @@ class Producto():
     def __init__(self, name, quantity ,price, stock, type):
         self.name = name
         self.quantity = quantity
-        self.price = price
-        self.stock = stock
+        self.price = float(price)
+        self.stock = int(stock)
         self.type = type
+        self.ventas = 0
+        self.monto_total = 0
 
-        if self.type == "non-alcoholic":
-            self.type = "Bebida no alcoholica"
-        if self.type == "alcoholic":
-            self.type = "Bebida alcoholica"
-        if self.type == "plate":
-            self.type = "Comida de preparacion"
-        if self.type == "package":
-            self.type = "Comida de empaque"
+    def calcular_monto(self):
+        self.monto_total = self.ventas * self.price * 1.16
+
+    def cambiar_cantidad(self, cantidad):
+        cantidad_nueva = self.stock - cantidad
+        self.stock = cantidad_nueva
+
+        if cantidad_nueva < 0:
+            self.stock = 0
+            print("No hay suficiente stock")
+            return
+        else:
+            return self.stock
 
 
     def show(self):
@@ -24,4 +31,6 @@ Cantidad: {self.quantity}
 Precio: {self.price}
 Stock: {self.stock}
 Tipo: {self.type}
+Vendidos: {self.ventas}
+Monto total: {self.monto_total}
 """

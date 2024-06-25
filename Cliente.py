@@ -15,8 +15,7 @@ class Cliente:
         self.total_tickets = 0
         self.total_productos = 0
         self.tickets = []
-        self.products = []
-        
+        self.productos = []
 
     def descuento_vampiro(self):
         num_str = str(self.cedula)
@@ -34,6 +33,17 @@ class Cliente:
         if self.descuento_vampiro():
             self.descuento_1 = True
             print("\nEl cliente tiene un 50% de descuento en la compra de sus tickets\n")
+        if self.es_perfecto():
+            self.descuento_2 = True
+            print("\nEl cliente tiene un 15% de descuento en los restaurantes\n")
+
+    def es_perfecto(self):
+        n = int(self.cedula)
+        suma = 0
+        for i in range(1, n):
+            if n % i == 0:
+                suma += i
+        return suma == n
 
     def calcular_tickets(self):
         aux_1 = 0
@@ -46,6 +56,14 @@ class Cliente:
         self.total_tickets_general = aux_1
         self.total_tickets_vip = aux_2
         self.total_tickets = aux_1 + aux_2
+
+    def calcular_total(self):
+        aux = 0
+        for product in self.productos:
+            aux += product.price
+        self.total_productos = aux
+        if self.descuento_2:
+            self.total_productos *= 0.85
 
     def show_info(self):
         """Muestra la informacion del cliente
@@ -61,3 +79,13 @@ class Cliente:
             print(f"\n________{i+1}________")
             ticket.show_info()
         print(f"\n-Total en entradas: ${self.total_tickets}")
+
+        if len(self.productos) > 0:
+            print("\n\n\tProductos comprados")
+            for j,product in enumerate(self.productos):
+                print(f"\n________{j+1}________")
+                product.show()
+            print(f"\n-Total en productos: ${self.total_productos}")
+        else:
+            print("\n\n\tNo se han comprado productos")
+        print(f"-Monto total gastado: ${self.total_tickets + self.total_productos}")
