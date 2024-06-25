@@ -476,13 +476,154 @@ class App():
 
         else:
             print("\n\t\tEl ticket ingresado no existe\n")
+
+    def buscar_productos_por_nombre(self):
+        estadios = self.get_info_api("stadiums")
+        productos = set()
+        for info_stadium in estadios:
+            for info_restaurante in info_stadium["restaurants"]:
+                for info_producto in info_restaurante["products"]:
+                    productos.add(info_producto["name"])
+
+        # Convert the set back to a list for sorting and printing
+        productos = list(productos)
+
+        # Sort the products alphabetically
+        self.merge_sort(productos, lambda x: x)
+        print("\n\t\tProductos Disponibles en todos los restaurantes (Ordenados alfabéticamente):\n")
+        for i, producto in enumerate(productos):
+            print(f"{i+1}. {producto}")
+
+        nombre_producto = input("\nIngrese el nombre del producto que desea buscar: ").lower()
+        productos_encontrados = [
+            (p["name"], p["quantity"], p["price"], p["stock"], p["adicional"], info_stadium["name"], info_restaurante["name"])
+            for info_stadium in estadios
+            for info_restaurante in info_stadium["restaurants"]
+            for p in info_restaurante["products"]
+            if nombre_producto in p["name"].lower()
+        ]
+
+        if len(productos_encontrados) > 0:
+            print("\n\tProductos encontrados con ese nombre en los diferentes restaurantes:")
+            for i, (producto, quantity, price, stock, adicional, estadio, restaurante) in enumerate(productos_encontrados):
+                print(f"{i+1}. Producto: {producto}")
+                print(f"Cantidad: {quantity}")
+                print(f"Precio: {price}")
+                print(f"Stock: {stock}")
+                print(f"Tipo: {adicional}")
+                print(f"Estadio: {estadio}")
+                print(f"Restaurante: {restaurante}\n")
+        else:
+            print("\n\tNo se encontraron productos con el nombre proporcionado.")
+
+    def buscar_productos_por_tipo(self):
+        estadios = self.get_info_api("stadiums")
+        productos = set()
+        for info_stadium in estadios:
+            for info_restaurante in info_stadium["restaurants"]:
+                for info_producto in info_restaurante["products"]:
+                    productos.add(info_producto["adicional"])
+
+        # Se convierte en lista para ordenarse e imprimirse
+        productos = list(productos)
+
+        # Ordena las opciones alfabeticamente
+        self.merge_sort(productos, lambda x: x)
+        print("\n\t\tTipos de productos disponibles en los restaurantes:\n")
+        for i, producto in enumerate(productos):
+            print(f"{i+1}. {producto}")
+
+        tipo_producto = input("\nIngrese el tipo de producto que desea buscar: ").lower()
+        productos_encontrados = [
+            (p["name"], p["quantity"], p["price"], p["stock"], p["adicional"], info_stadium["name"], info_restaurante["name"])
+            for info_stadium in estadios
+            for info_restaurante in info_stadium["restaurants"]
+            for p in info_restaurante["products"]
+            if tipo_producto in p["adicional"].lower()
+        ]
+
+        if len(productos_encontrados) > 0:
+            print("\n\tProductos encontrados con ese tipo en los diferentes restaurantes:")
+            for i, (producto, quantity, price, stock, adicional, estadio, restaurante) in enumerate(productos_encontrados):
+                print(f"{i+1}.Producto: {producto}")
+                print(f"Cantidad: {quantity}")
+                print(f"Precio: {price}")
+                print(f"Stock: {stock}")
+                print(f"Tipo: {adicional}")
+                print(f"Estadio: {estadio}")
+                print(f"Restaurante: {restaurante}\n")
+        else:
+            print("\n\tNo se encontraron productos con el tipo proporcionado.")
+
+    def buscar_productos_por_precio(self):
+        estadios = self.get_info_api("stadiums")
+        productos = set()
+        for info_stadium in estadios:
+            for info_restaurante in info_stadium["restaurants"]:
+                for info_producto in info_restaurante["products"]:
+                    productos.add((info_producto["name"], float(info_producto["price"])))
+
+        # Convert the set back to a list for sorting and printing
+        productos = list(productos)
+
+        # Sort the products by price
+        self.merge_sort(productos, lambda x: x[1])
+        print("\n\t\tProductos Disponibles en los restaurantes (Ordenados por precio):\n")
+        for i, (producto, precio) in enumerate(productos):
+            print(f"{i+1}. Producto: {producto}, Precio: {precio}")
+
+        while True:
+            try:
+                print("\n\t\tSeleeciona la opción de precio que desea buscar:")
+                print("1. Menor que X precio")
+                print("2. Igual a X precio")
+                print("3. Mayor que X precio")
+
+                option = int(input("\nIngrese el número de la opción que desea ejecutar\n> "))
+                if option not in range(1, 4):
+                    raise Exception
+                break
+            except:
+                print("\nOpción invalida\n")
+
+        if option == 1:
+            precio_x = float(input("\nIngrese el precio máximo que desea buscar: "))
+            productos_encontrados = [
+                (p[0], p[1])
+                for p in productos
+                if p[1] < precio_x
+            ]
+
+        elif option == 2:
+            precio_x = float(input("\nIngrese el precio que desea buscar: "))
+            productos_encontrados = [
+                (p[0], p[1])
+                for p in productos
+                if p[1] == precio_x
+            ]
+
+        elif option == 3:
+            precio_x = float(input("\nIngrese el precio mínimo que desea buscar: "))
+            productos_encontrados = [
+                (p[0], p[1])
+                for p in productos
+                if p[1] > precio_x
+            ]
+
+        if len(productos_encontrados) > 0:
+            print("\n\tProductos encontrados con el precio seleccionado:")
+            for i, (producto, precio) in enumerate(productos_encontrados):
+                print(f"{i+1}. Producto: {producto}, Precio: {precio}")
+        else:
+            print("\n\tNo se encontraron productos con el precio proporcionado.")
+
             
     def menu(self):
         self.registrar_equipos()
         self.registrar_estadios()
         self.registrar_partidos()
         while True:
-            print('-- EUROCOPA 2024 --\n Bienvenido/a')
+            print('\n\n\n-- EUROCOPA 2024 --\n Bienvenido/a')
             while True:
                     try:
                         print("\n\t\tSeleeciona el numero asociado a tu eleccion:\n")
@@ -493,10 +634,12 @@ class App():
                         print("5.Comprar tickets")
                         print("6.Verificar tickets y registrar asistencia")
                         print("7.Comprar productos")
-                        print("8.Buscar productos")
-                        print("9.Mostrar estadísticas")
-                        print("10.Cargar datos de la API (Cargar los datos a su estado inicial)")
-                        print("11.Salir")
+                        print("8.Buscar productos por nombre")
+                        print("9.Buscar productos por tipo")
+                        print("10.Buscar productos por precio")
+                        print("11.Mostrar estadísticas")
+                        print("12.Cargar datos de la API (Cargar los datos a su estado inicial)")
+                        print("13.Salir")
 
                         option = int(input("\nIngrese el numero de la opción que desea ejecutar\n> "))
                         if option not in range(1,12):
@@ -531,3 +674,19 @@ class App():
             elif option == 6:
                 print("\n\t\tVerificar tickets y registrar asistencia\n")
                 self.check_tickets()
+
+            elif option == 7:
+                print("\n\t\tComprar productos\n")
+                self.comprar_producto()
+
+            elif option == 8:
+                print("\n\t\tBuscar productos por nombre\n")
+                self.buscar_productos_por_nombre()
+
+            elif option == 9:
+                print("\n\t\tBuscar productos por tipo\n")
+                self.buscar_productos_por_tipo()
+
+            elif option == 10:
+                print("\n\t\tBuscar productos por precio\n")
+                self.buscar_productos_por_precio()
