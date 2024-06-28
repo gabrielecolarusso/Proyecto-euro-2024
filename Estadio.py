@@ -6,18 +6,6 @@ class Estadio:
         self.city = city
         self.capacity = capacity
         self.restaurantes = []
-
-    def getId(self):
-        return self.id
-    
-    def getName(self):
-        return self.name
-    
-    def getCity(self):
-        return self.city
-    
-    def getCapacity(self):
-        return self.capacity
     
 
     def show(self):

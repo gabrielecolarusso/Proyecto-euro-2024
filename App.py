@@ -168,6 +168,54 @@ class App():
                 print(f"Fecha: {partido.fecha}")
                 print(f"Estadio: {partido.stadium.name}\n")   
 
+    def merge_sort(self, mi_lista, mi_func):
+    #Funcion que ordena una lista usando un algoritmo de ordenamiento
+    #Merge Sort, se divide la lista en dos partes y se ordena cada una de ellas
+    #Luego se ordenan las dos partes y se unen en una sola lista ordenada
+    #mi_lista (list): La lista que se va a ordenar
+    #mi_func (function): Una funcion que toma un elemento de la lista y devuelve un valor para ser utilizado en el ordenamiento
+        if len(mi_lista) > 1:
+            medio = len(mi_lista) // 2
+            izquierda = mi_lista[:medio]
+            derecha = mi_lista[medio:]
+            self.merge_sort(izquierda, mi_func)
+            self.merge_sort(derecha, mi_func)
+            i = j = k = 0
+            while i < len(izquierda) and j < len(derecha):
+                if mi_func(izquierda[i]) <= mi_func(derecha[j]):
+                    mi_lista[k] = izquierda[i]
+                    i += 1
+                else:
+                    mi_lista[k] = derecha[j]
+                    j += 1
+                k += 1
+            while i < len(izquierda):
+                mi_lista[k] = izquierda[i]
+                i += 1
+                k += 1
+            while j < len(derecha):
+                mi_lista[k] = derecha[j]
+                j += 1
+                k += 1
+
+    def binary_search(self, arr, bajo, alto, x, mi_func):
+    #Funcion que busca dentro de una lista usando un algoritmo de busqueda
+    #Binary Search, se divide la lista en dos partes y se busca en cada una de ellas
+    #Luego se busca en la mitad de la lista y se compara con el valor buscado
+    #Si el valor buscado es menor que el valor de la mitad, se busca en la parte izquierda de la lista
+    #Si el valor buscado es mayor que el valor de la mitad, se busca en la parte derecha de la lista
+    #Si el valor buscado es igual que el valor de la mitad, se retorna el indice de la mitad
+        if alto >= bajo:
+            medio = (alto + bajo) // 2
+            if mi_func(arr[medio]) == x:
+                return medio
+            elif mi_func(arr[medio]) > x:
+                return self.binary_search(arr, bajo, medio - 1, x, mi_func)
+            else:
+                return self.binary_search(arr, medio + 1, alto, x, mi_func)
+        else:
+            return -1
+
     def registrar_cliente(self):
     #Esta funcion pide datos a la persona que utiliza el sistema, crea un objeto Cliente y los guarda
         print("BIENVENIDO, Ingrese los siguientes datos solicitados por el sistema: ")
@@ -506,55 +554,6 @@ class App():
         #Se retorna el asiento seleccionado
         print(f"\n\tAsiento seleccionado: {seat}\n")
         return seat
-    
-
-    def merge_sort(self, mi_lista, mi_func):
-    #Funcion que ordena una lista usando un algoritmo de ordenamiento
-    #Merge Sort, se divide la lista en dos partes y se ordena cada una de ellas
-    #Luego se ordenan las dos partes y se unen en una sola lista ordenada
-    #mi_lista (list): La lista que se va a ordenar
-    #mi_func (function): Una funcion que toma un elemento de la lista y devuelve un valor para ser utilizado en el ordenamiento
-        if len(mi_lista) > 1:
-            medio = len(mi_lista) // 2
-            izquierda = mi_lista[:medio]
-            derecha = mi_lista[medio:]
-            self.merge_sort(izquierda, mi_func)
-            self.merge_sort(derecha, mi_func)
-            i = j = k = 0
-            while i < len(izquierda) and j < len(derecha):
-                if mi_func(izquierda[i]) <= mi_func(derecha[j]):
-                    mi_lista[k] = izquierda[i]
-                    i += 1
-                else:
-                    mi_lista[k] = derecha[j]
-                    j += 1
-                k += 1
-            while i < len(izquierda):
-                mi_lista[k] = izquierda[i]
-                i += 1
-                k += 1
-            while j < len(derecha):
-                mi_lista[k] = derecha[j]
-                j += 1
-                k += 1
-
-    def binary_search(self, arr, bajo, alto, x, mi_func):
-    #Funcion que busca dentro de una lista usando un algoritmo de busqueda
-    #Binary Search, se divide la lista en dos partes y se busca en cada una de ellas
-    #Luego se busca en la mitad de la lista y se compara con el valor buscado
-    #Si el valor buscado es menor que el valor de la mitad, se busca en la parte izquierda de la lista
-    #Si el valor buscado es mayor que el valor de la mitad, se busca en la parte derecha de la lista
-    #Si el valor buscado es igual que el valor de la mitad, se retorna el indice de la mitad
-        if alto >= bajo:
-            medio = (alto + bajo) // 2
-            if mi_func(arr[medio]) == x:
-                return medio
-            elif mi_func(arr[medio]) > x:
-                return self.binary_search(arr, bajo, medio - 1, x, mi_func)
-            else:
-                return self.binary_search(arr, medio + 1, alto, x, mi_func)
-        else:
-            return -1
         
     def check_tickets(self):
     #Funcion que verifica si un ticket ya fue usado

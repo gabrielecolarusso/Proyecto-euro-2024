@@ -28,6 +28,14 @@ class Cliente:
                     return True
 
         return False
+    
+    def es_perfecto(self):
+        n = int(self.cedula)
+        suma = 0
+        for i in range(1, n):
+            if n % i == 0:
+                suma += i
+        return suma == n
 
     def descuento(self):
         if self.descuento_vampiro():
@@ -37,13 +45,6 @@ class Cliente:
             self.descuento_2 = True
             print("\nEl cliente tiene un 15% de descuento en los restaurantes\n")
 
-    def es_perfecto(self):
-        n = int(self.cedula)
-        suma = 0
-        for i in range(1, n):
-            if n % i == 0:
-                suma += i
-        return suma == n
 
     def calcular_tickets(self):
         aux_1 = 0
