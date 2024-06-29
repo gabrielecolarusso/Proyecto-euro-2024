@@ -84,7 +84,6 @@ class Cliente:
         if len(self.productos) > 0:
             print("\n\n\tProductos comprados")
             for j,product in enumerate(self.productos):
-                print(f"\n________{j+1}________")
                 product.show()
             print(f"\n-Total en productos: ${self.total_productos}")
         else:
